@@ -325,3 +325,36 @@ difficulty of real-world screening, and the models should not be treated as clin
 validated. Future work: external validation on an independent cohort, decision-threshold
 tuning to trade specificity for sensitivity, missing-indicator features to exploit
 informative missingness, and nested cross-validation for unbiased hyperparameter tuning.
+
+---
+
+## Appendix A — A note on the three AUC values
+
+Three AUC numbers appear in this project and they are *not* expected to be identical:
+
+1. **Per-fold AUC** — computed within one held-out fold (Table 3 reports mean ± SD).
+2. **Pooled out-of-fold AUC** — one AUC over all 400 out-of-fold scores (Table 1).
+3. **The AUC printed on the ROC figures** — labelled as the mean ± SD of the *fold*
+   AUCs, following the scikit-learn convention.
+
+The area under the *interpolated mean* ROC curve is a fourth quantity and is slightly
+lower than the mean of the fold areas (interpolating five near-square curves onto a
+common FPR grid rounds off their corners). The figures therefore quote the mean of the
+fold AUCs rather than the area of the drawn mean curve, so that the number on the plot
+matches Table 3. If your teacher asks for "the AUC", quote the **pooled out-of-fold
+AUC** from Table 1 and state that it is out-of-fold.
+
+## Appendix B — Reproducibility
+
+| Item | Value |
+|---|---|
+| `random_state` | 42 (splits and all models) |
+| CV | `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` |
+| Fold composition | every test fold: 50 CKD + 30 notckd |
+| Verified with | pandas 3.0.5, scikit-learn 1.9.0, numpy 2.4.6 |
+| Notebook | 53 cells, executed end-to-end with 0 errors |
+
+The cleaning step casts categorical columns to `object`/`np.nan` rather than leaving
+them as pandas nullable `string`, because scikit-learn's `SimpleImputer` cannot consume
+the `pd.NA` sentinel that pandas ≥ 3.0 produces by default. The same code therefore runs
+unchanged on pandas 2.x (Colab's current version) and 3.x.

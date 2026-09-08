@@ -270,8 +270,14 @@ def plot_roc(res, tag, outdir):
         t = np.interp(mean_fpr, fpr, tpr); t[0] = 0.0
         tprs.append(t)
     mean_tpr = np.mean(tprs, axis=0); mean_tpr[-1] = 1.0
+    fold_aucs = [a for _, _, a in res["roc_curves"]]
+    # Label with mean +/- SD of the FOLD AUCs (scikit-learn convention). The
+    # area under the interpolated mean curve is not identical to the mean of
+    # the fold areas, so quoting the fold statistics avoids a confusing third
+    # number alongside the per-fold and pooled AUCs in the results tables.
     ax.plot(mean_fpr, mean_tpr, "b-", lw=2.4,
-            label=f"Mean ROC (AUC = {auc(mean_fpr, mean_tpr):.4f})")
+            label=f"Mean ROC (AUC = {np.mean(fold_aucs):.4f} "
+                  f"$\\pm$ {np.std(fold_aucs):.4f})")
     sd = np.std(tprs, axis=0)
     ax.fill_between(mean_fpr, np.maximum(mean_tpr - sd, 0),
                     np.minimum(mean_tpr + sd, 1), color="b", alpha=0.12,
