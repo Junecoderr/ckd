@@ -1,0 +1,5 @@
+Model,Accuracy,Sensitivity,Specificity,Precision,F1,AUC,TP,TN,FP,FN,AUC_mean_folds,AUC_sd_folds,Acc_mean_folds,Acc_sd_folds
+Logistic Regression,0.9875,0.988,0.9867,0.992,0.99,0.9998,247,148,2,3,1.0,0.0,0.9875,0.0088
+Decision Tree,0.975,0.98,0.9667,0.98,0.98,0.9733,245,145,5,5,0.9733,0.0277,0.975,0.025
+Random Forest,0.99,0.996,0.98,0.9881,0.992,0.9998,249,147,3,1,0.9999,0.0003,0.99,0.0105
+SVM (RBF),0.995,0.992,1.0,1.0,0.996,0.9998,248,150,0,2,0.9999,0.0003,0.995,0.0112

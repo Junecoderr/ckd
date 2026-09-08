@@ -1,0 +1,7 @@
+,Exp1_no_outlier,Exp1_no_outlier,Exp1_no_outlier,Exp1_no_outlier,Exp1_no_outlier,Exp1_no_outlier,Exp2_iqr_capped,Exp2_iqr_capped,Exp2_iqr_capped,Exp2_iqr_capped,Exp2_iqr_capped,Exp2_iqr_capped
+,Accuracy,Sensitivity,Specificity,Precision,F1,AUC,Accuracy,Sensitivity,Specificity,Precision,F1,AUC
+Model,,,,,,,,,,,,
+Logistic Regression,0.9925,0.992,0.9933,0.996,0.994,0.9998,0.9875,0.988,0.9867,0.992,0.99,0.9998
+Decision Tree,0.98,0.988,0.9667,0.9802,0.9841,0.9773,0.975,0.98,0.9667,0.98,0.98,0.9733
+Random Forest,0.99,0.996,0.98,0.9881,0.992,0.9997,0.99,0.996,0.98,0.9881,0.992,0.9998
+SVM (RBF),0.995,0.992,1.0,1.0,0.996,1.0,0.995,0.992,1.0,1.0,0.996,0.9998

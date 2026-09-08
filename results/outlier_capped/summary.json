@@ -1,0 +1,73 @@
+{
+  "experiment": "outlier_capped",
+  "n_rows": 400,
+  "n_ckd": 250,
+  "n_notckd": 150,
+  "best_model": "SVM (RBF)",
+  "results": {
+    "Logistic Regression": {
+      "Accuracy": 0.9875,
+      "Sensitivity": 0.988,
+      "Specificity": 0.986667,
+      "Precision": 0.991968,
+      "F1": 0.98998,
+      "AUC": 0.99976,
+      "TP": 247,
+      "TN": 148,
+      "FP": 2,
+      "FN": 3,
+      "AUC_mean_folds": 1.0,
+      "AUC_sd_folds": 0.0,
+      "Acc_mean_folds": 0.9875,
+      "Acc_sd_folds": 0.008839
+    },
+    "Decision Tree": {
+      "Accuracy": 0.975,
+      "Sensitivity": 0.98,
+      "Specificity": 0.966667,
+      "Precision": 0.98,
+      "F1": 0.98,
+      "AUC": 0.973333,
+      "TP": 245,
+      "TN": 145,
+      "FP": 5,
+      "FN": 5,
+      "AUC_mean_folds": 0.973333,
+      "AUC_sd_folds": 0.027689,
+      "Acc_mean_folds": 0.975,
+      "Acc_sd_folds": 0.025
+    },
+    "Random Forest": {
+      "Accuracy": 0.99,
+      "Sensitivity": 0.996,
+      "Specificity": 0.98,
+      "Precision": 0.988095,
+      "F1": 0.992032,
+      "AUC": 0.99976,
+      "TP": 249,
+      "TN": 147,
+      "FP": 3,
+      "FN": 1,
+      "AUC_mean_folds": 0.999867,
+      "AUC_sd_folds": 0.000298,
+      "Acc_mean_folds": 0.99,
+      "Acc_sd_folds": 0.010458
+    },
+    "SVM (RBF)": {
+      "Accuracy": 0.995,
+      "Sensitivity": 0.992,
+      "Specificity": 1.0,
+      "Precision": 1.0,
+      "F1": 0.995984,
+      "AUC": 0.999787,
+      "TP": 248,
+      "TN": 150,
+      "FP": 0,
+      "FN": 2,
+      "AUC_mean_folds": 0.999867,
+      "AUC_sd_folds": 0.000298,
+      "Acc_mean_folds": 0.995,
+      "Acc_sd_folds": 0.01118
+    }
+  }
+}
