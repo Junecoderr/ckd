@@ -1,0 +1,7 @@
+Model_A,Model_B,n_discordant,n_only_A_correct,n_only_B_correct,p_value,p_holm,significant_at_0.05
+Logistic Regression,Decision Tree,47,32,15,0.018623836615006432,0.07449534646002573,False
+Logistic Regression,Random Forest,24,6,18,0.022655844688415527,0.07449534646002573,False
+Logistic Regression,SVM (RBF),13,8,5,0.5810546875,0.5810546875,False
+Decision Tree,Random Forest,37,4,33,1.0843941709026694e-06,6.506365025416017e-06,True
+Decision Tree,SVM (RBF),48,17,31,0.05946337525377034,0.11892675050754067,False
+Random Forest,SVM (RBF),27,21,6,0.005924612283706665,0.029623061418533325,True

@@ -1,5 +1,5 @@
-Model,Accuracy,Sensitivity,Specificity,Precision,F1,AUC,TP,TN,FP,FN,AUC_mean_folds,AUC_sd_folds,Acc_mean_folds,Acc_sd_folds
-Logistic Regression,0.9875,0.988,0.9867,0.992,0.99,0.9998,247,148,2,3,1.0,0.0,0.9875,0.0088
-Decision Tree,0.975,0.98,0.9667,0.98,0.98,0.9733,245,145,5,5,0.9733,0.0277,0.975,0.025
-Random Forest,0.99,0.996,0.98,0.9881,0.992,0.9998,249,147,3,1,0.9999,0.0003,0.99,0.0105
-SVM (RBF),0.995,0.992,1.0,1.0,0.996,0.9998,248,150,0,2,0.9999,0.0003,0.995,0.0112
+Model,Accuracy,Sensitivity,Specificity,Precision,F1,NPV,AUC,Brier,TP,TN,FP,FN,AUC_mean_folds,AUC_sd_folds,Acc_mean_folds,Acc_sd_folds,Accuracy_CI_low,Accuracy_CI_high,Sensitivity_CI_low,Sensitivity_CI_high,Specificity_CI_low,Specificity_CI_high,Precision_CI_low,Precision_CI_high,F1_CI_low,F1_CI_high,NPV_CI_low,NPV_CI_high,AUC_CI_low,AUC_CI_high,Brier_CI_low,Brier_CI_high
+Logistic Regression,0.9875,0.988,0.9867,0.992,0.99,0.9801,0.9998,0.0091,247,148,2,3,1.0,0.0,0.9875,0.0088,0.975,0.9975,0.9719,1.0,0.9658,1.0,0.9793,1.0,0.9803,0.998,0.9533,1.0,0.9992,1.0,0.0052,0.0136
+Decision Tree,0.975,0.98,0.9667,0.98,0.98,0.9667,0.9733,0.025,245,145,5,5,0.9733,0.0277,0.975,0.025,0.96,0.99,0.9611,0.996,0.9351,0.9932,0.9606,0.996,0.9671,0.992,0.9357,0.9932,0.9557,0.9893,0.01,0.04
+Random Forest,0.99,0.996,0.98,0.9881,0.992,0.9932,0.9998,0.0091,249,147,3,1,0.9999,0.0003,0.99,0.0105,0.98,0.9975,0.9873,1.0,0.9545,1.0,0.9728,1.0,0.9831,0.9981,0.9781,1.0,0.9992,1.0,0.0048,0.014
+SVM (RBF),0.995,0.992,1.0,1.0,0.996,0.9868,0.9998,0.0066,248,150,0,2,0.9999,0.0003,0.995,0.0112,0.9875,1.0,0.9794,1.0,1.0,1.0,1.0,1.0,0.9896,1.0,0.9664,1.0,0.9993,1.0,0.003,0.011
