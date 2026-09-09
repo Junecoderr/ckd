@@ -1,0 +1,6 @@
+Fold,max_depth,max_features,min_samples_leaf
+1,,sqrt,1
+2,,sqrt,1
+3,5.0,sqrt,1
+4,,sqrt,1
+5,,sqrt,1

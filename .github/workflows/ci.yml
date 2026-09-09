@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install pinned dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: PYTHONPATH=src python -m pytest tests/ -q
+
+      # A smoke run of the primary experiment: proves the committed results
+      # can actually be regenerated from the raw CSV on a clean machine.
+      # Bootstrap and stability passes are switched off to keep CI quick.
+      - name: Smoke-run the primary experiment
+        run: |
+          python src/ckd_pipeline.py --experiment no_outlier \
+              --n-boot 0 --stability-repeats 0 --outdir /tmp/ci-results
+
+      - name: Check the headline numbers still match the committed results
+        run: |
+          python - <<'PY'
+          import json
+          fresh = json.load(open("/tmp/ci-results/no_outlier/summary.json"))
+          committed = json.load(open("results/no_outlier/summary.json"))
+          for model, ref in committed["results"].items():
+              got = fresh["results"][model]
+              for metric in ("Accuracy", "Sensitivity", "Specificity", "AUC"):
+                  a, b = round(ref[metric], 4), round(got[metric], 4)
+                  assert a == b, f"{model}/{metric}: committed {a}, rebuilt {b}"
+          print("Committed results reproduce exactly.")
+          PY

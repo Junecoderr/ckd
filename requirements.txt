@@ -1,0 +1,10 @@
+# Pinned to the versions the committed results in results/ were produced with.
+# Appendix B of REPORT.md claims reproducibility; these pins are what make that
+# claim checkable. scipy arrives as a scikit-learn dependency but is pinned
+# explicitly because src/stats_tests.py imports it directly.
+numpy==2.1.3
+pandas==2.2.3
+scipy==1.16.1
+scikit-learn==1.7.1
+matplotlib==3.10.6
+seaborn==0.13.2

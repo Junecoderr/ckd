@@ -1,0 +1,5 @@
+Model,mean_threshold,sd_threshold,Accuracy,Sensitivity,Specificity,Precision,F1,NPV,AUC,Brier,TP,TN,FP,FN,screening_cost,screening_cost_at_0.5
+Logistic Regression,0.3964,0.0517,0.9925,1.0,0.98,0.9881,0.994,1.0,0.9998,0.0086,250,147,3,0,3.0,11.0
+Decision Tree,1.0,0.0,0.98,0.988,0.9667,0.9802,0.9841,0.9797,0.9773,0.02,247,145,5,3,20.0,20.0
+Random Forest,0.4893,0.0954,0.99,0.996,0.98,0.9881,0.992,0.9932,0.9997,0.0093,249,147,3,1,8.0,8.0
+SVM (RBF),0.4212,0.0975,0.995,1.0,0.9867,0.9921,0.996,1.0,1.0,0.0046,250,148,2,0,2.0,10.0
