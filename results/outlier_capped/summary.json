@@ -69,5 +69,58 @@
       "Acc_mean_folds": 0.995,
       "Acc_sd_folds": 0.01118
     }
+  },
+  "normal_classification": {
+    "test_size": 0.2,
+    "results": {
+      "Logistic Regression": {
+        "Accuracy": 1.0,
+        "Sensitivity": 1.0,
+        "Specificity": 1.0,
+        "Precision": 1.0,
+        "F1": 1.0,
+        "AUC": 1.0,
+        "TP": 50,
+        "TN": 30,
+        "FP": 0,
+        "FN": 0
+      },
+      "Decision Tree": {
+        "Accuracy": 0.9875,
+        "Sensitivity": 0.98,
+        "Specificity": 1.0,
+        "Precision": 1.0,
+        "F1": 0.989899,
+        "AUC": 0.99,
+        "TP": 49,
+        "TN": 30,
+        "FP": 0,
+        "FN": 1
+      },
+      "Random Forest": {
+        "Accuracy": 1.0,
+        "Sensitivity": 1.0,
+        "Specificity": 1.0,
+        "Precision": 1.0,
+        "F1": 1.0,
+        "AUC": 1.0,
+        "TP": 50,
+        "TN": 30,
+        "FP": 0,
+        "FN": 0
+      },
+      "SVM (RBF)": {
+        "Accuracy": 1.0,
+        "Sensitivity": 1.0,
+        "Specificity": 1.0,
+        "Precision": 1.0,
+        "F1": 1.0,
+        "AUC": 1.0,
+        "TP": 50,
+        "TN": 30,
+        "FP": 0,
+        "FN": 0
+      }
+    }
   }
 }

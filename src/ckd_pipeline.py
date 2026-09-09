@@ -7,9 +7,25 @@ Experiment 1 : NO outlier removal  (--experiment no_outlier)
 Experiment 2 : IQR outlier treatment via winsorisation, fold-safe
                (--experiment outlier_capped)
 
+Two classification modes (--mode), both reported by default:
+
+  normal  A single stratified train/test split (holdout). One confusion matrix,
+          one ROC curve and one set of metrics per model, on data the model has
+          never seen. This is the plain "train it, test it" evaluation.
+
+  kfold   5-fold Stratified cross-validation: the mean accuracy across the k
+          folds, k ROC curves per model (one per fold plus their mean), and a
+          pooled out-of-fold confusion matrix in which every one of the 400
+          patients is predicted exactly once while held out.
+
+Both modes report the same quantities from the confusion matrix: Accuracy,
+Sensitivity, Specificity, Precision, F1 and AUC.
+
 Usage:
     python src/ckd_pipeline.py --experiment no_outlier
     python src/ckd_pipeline.py --experiment outlier_capped
+    python src/ckd_pipeline.py --mode normal
+    python src/ckd_pipeline.py --mode kfold
 """
 
 import argparse
@@ -30,7 +46,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (auc, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
                              roc_curve)
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.model_selection import (StratifiedKFold, cross_val_predict,
+                                     train_test_split)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.svm import SVC
@@ -40,6 +57,7 @@ warnings.filterwarnings("ignore")
 
 RANDOM_STATE = 42
 N_SPLITS = 5
+TEST_SIZE = 0.2          # holdout fraction for the normal-classification mode
 
 # ----------------------------------------------------------------------------
 # Column groups (fixed by domain knowledge of the UCI CKD dataset)
@@ -201,7 +219,56 @@ def metrics_from_cm(y_true, y_pred, y_score):
 
 
 # ----------------------------------------------------------------------------
-# STEP 5 -- 5-fold stratified CV evaluation
+# STEP 5a -- Normal classification (a single stratified train/test split)
+# ----------------------------------------------------------------------------
+def normal_classification(X, y, preproc_factory, test_size=TEST_SIZE):
+    """Train once on a training split, test once on unseen data.
+
+    The split is **stratified**, so the 62.5 / 37.5 class ratio is preserved in
+    both halves; without that, a 20% test set of a class-sorted file could end
+    up wildly unbalanced.
+
+    Preprocessing is fitted on the training half only -- the pipeline is fitted
+    inside this function and the test half is merely transformed -- so the
+    holdout evaluation is subject to the same no-leakage rule as the
+    cross-validated one.
+    """
+    X_tr, X_te, y_tr, y_te = train_test_split(
+        X, y, test_size=test_size, random_state=RANDOM_STATE, stratify=y)
+
+    results = {}
+    for name, model in build_models().items():
+        pipe = Pipeline([("prep", preproc_factory()), ("clf", model)])
+        pipe.fit(X_tr, y_tr)                       # sees the training half only
+
+        pred = pipe.predict(X_te)
+        score = pipe.predict_proba(X_te)[:, 1]
+
+        m = metrics_from_cm(y_te, pred, score)
+        fpr, tpr, _ = roc_curve(y_te, score)
+        results[name] = {"metrics": m, "roc": (fpr, tpr, auc(fpr, tpr))}
+
+    return results, (len(X_tr), len(X_te), int((y_te == 1).sum()),
+                     int((y_te == 0).sum()))
+
+
+def plot_roc_normal(res, name, tag, outdir):
+    """Single ROC curve for the holdout split."""
+    fpr, tpr, a = res["roc"]
+    fig, ax = plt.subplots(figsize=(5.2, 4.8))
+    ax.plot(fpr, tpr, "b-", lw=2.2, label=f"{name} (AUC = {a:.4f})")
+    ax.plot([0, 1], [0, 1], "k--", lw=1, label="Chance (AUC = 0.5)")
+    ax.set(xlabel="1 - Specificity (False Positive Rate)",
+           ylabel="Sensitivity (True Positive Rate)",
+           title=f"ROC Curve - {name}\nSingle stratified train/test split")
+    ax.legend(loc="lower right", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(outdir / f"roc_curve_{tag}_normal_{slug(name)}.png", dpi=160)
+    plt.close(fig)
+
+
+# ----------------------------------------------------------------------------
+# STEP 5b -- 5-fold stratified CV evaluation
 # ----------------------------------------------------------------------------
 def evaluate(name, model, X, y, preproc_factory, outdir):
     cv = StratifiedKFold(n_splits=N_SPLITS, shuffle=True,
@@ -241,7 +308,7 @@ def evaluate(name, model, X, y, preproc_factory, outdir):
 # ----------------------------------------------------------------------------
 # STEP 6 -- Plots
 # ----------------------------------------------------------------------------
-def plot_confusion(pooled, name, tag, outdir):
+def plot_confusion(pooled, name, tag, outdir, subtitle="pooled out-of-fold"):
     cm = np.array([[pooled["TN"], pooled["FP"]],
                    [pooled["FN"], pooled["TP"]]])
     fig, ax = plt.subplots(figsize=(4.6, 4.2))
@@ -254,7 +321,7 @@ def plot_confusion(pooled, name, tag, outdir):
                     color="white" if cm[i, j] > cm.max() / 2 else "black")
     ax.set_xticks([0, 1], ["Pred: notckd", "Pred: ckd"])
     ax.set_yticks([0, 1], ["True: notckd", "True: ckd"])
-    ax.set_title(f"Confusion Matrix (pooled out-of-fold)\n{name}")
+    ax.set_title(f"Confusion Matrix ({subtitle})\n{name}")
     fig.tight_layout()
     fig.savefig(outdir / f"confusion_matrix_{tag}_{slug(name)}.png", dpi=160)
     plt.close(fig)
@@ -354,6 +421,12 @@ def main():
     ap.add_argument("--experiment", choices=["no_outlier", "outlier_capped"],
                     default="no_outlier")
     ap.add_argument("--outdir", default="results")
+    ap.add_argument("--mode", choices=["normal", "kfold", "both"],
+                    default="both",
+                    help="normal = single train/test split; "
+                         "kfold = 5-fold stratified CV; both = run each")
+    ap.add_argument("--test-size", type=float, default=TEST_SIZE,
+                    help="holdout fraction used by --mode normal")
     args = ap.parse_args()
 
     treat_outliers = args.experiment == "outlier_capped"
@@ -402,7 +475,41 @@ def main():
 
     # ---- STEPS 3-5
     factory = lambda: build_preprocessor(treat_outliers)
-    print(f"\n[4] Running {N_SPLITS}-fold Stratified CV "
+
+    # ---- STEP 4a: normal classification (single stratified train/test split)
+    if args.mode in ("normal", "both"):
+        norm_res, (n_tr, n_te, n_te_ckd, n_te_not) = normal_classification(
+            X, y, factory, test_size=args.test_size)
+
+        print(f"\n[4a] NORMAL CLASSIFICATION - single stratified split "
+              f"({int((1 - args.test_size) * 100)}/{int(args.test_size * 100)})")
+        print(f"     Train: {n_tr} patients   Test: {n_te} patients "
+              f"({n_te_ckd} ckd / {n_te_not} notckd)")
+
+        norm_rows = []
+        for name, r in norm_res.items():
+            m = r["metrics"]
+            norm_rows.append({"Model": name, **{k: m[k] for k in
+                              ["Accuracy", "Sensitivity", "Specificity",
+                               "Precision", "F1", "AUC", "TP", "TN", "FP", "FN"]}})
+            plot_confusion(m, name, f"{tag}_normal", outdir,
+                           subtitle=f"holdout, n = {n_te}")
+            plot_roc_normal(r, name, tag, outdir)
+
+        norm_tbl = pd.DataFrame(norm_rows).set_index("Model")
+        norm_tbl.round(4).to_csv(outdir / "table_normal_classification.csv")
+        print(norm_tbl.round(4).to_string())
+        norm_best = norm_tbl["Accuracy"].idxmax()
+        print(f"     Best holdout accuracy: {norm_best} "
+              f"({norm_tbl.loc[norm_best, 'Accuracy']:.4f})")
+    else:
+        norm_tbl = None
+
+    if args.mode == "normal":
+        print(f"\nTables + figures written to: {outdir}/")
+        return
+
+    print(f"\n[4b] Running {N_SPLITS}-fold Stratified CV "
           f"(outlier capping = {treat_outliers}) ...")
 
     all_res, rows = {}, []
@@ -439,6 +546,10 @@ def main():
     print(summary[["Accuracy", "Sensitivity", "Specificity", "Precision",
                    "F1", "AUC", "TP", "TN", "FP", "FN"]].round(4).to_string())
 
+    print(f"\n[5a] MEAN ACCURACY across the {N_SPLITS} folds (mean +/- SD)")
+    print(summary[["Acc_mean_folds", "Acc_sd_folds",
+                   "AUC_mean_folds", "AUC_sd_folds"]].round(4).to_string())
+
     imp = plot_feature_importance(X, y, factory, outdir, tag)
     imp.round(4).to_csv(outdir / "table_feature_importance.csv",
                         header=["importance"])
@@ -455,7 +566,11 @@ def main():
                    "n_ckd": int((y == 1).sum()),
                    "n_notckd": int((y == 0).sum()),
                    "best_model": best,
-                   "results": summary.round(6).to_dict(orient="index")},
+                   "results": summary.round(6).to_dict(orient="index"),
+                   "normal_classification": (
+                       None if norm_tbl is None else {
+                           "test_size": args.test_size,
+                           "results": norm_tbl.round(6).to_dict(orient="index")})},
                   f, indent=2)
     print(f"\nAll tables + figures written to: {outdir}/")
 

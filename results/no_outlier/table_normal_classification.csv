@@ -1,0 +1,5 @@
+Model,Accuracy,Sensitivity,Specificity,Precision,F1,AUC,TP,TN,FP,FN
+Logistic Regression,0.9875,0.98,1.0,1.0,0.9899,1.0,49,30,0,1
+Decision Tree,0.975,0.98,0.9667,0.98,0.98,0.9733,49,29,1,1
+Random Forest,1.0,1.0,1.0,1.0,1.0,1.0,50,30,0,0
+SVM (RBF),0.975,0.96,1.0,1.0,0.9796,1.0,48,30,0,2
