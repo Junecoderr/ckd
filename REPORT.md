@@ -112,7 +112,17 @@ computed partly from the test rows.
 
 ### 1.7 Validation design
 
-5-fold **Stratified** cross-validation, `shuffle=True`, `random_state=42`.
+Two evaluation designs are reported, because they answer different questions.
+
+**Normal classification — a single stratified train/test split.** The data are split
+80/20 with `train_test_split(..., stratify=y, random_state=42)`, giving 320 training and
+80 test patients (50 ckd / 30 notckd). The pipeline is fitted on the training half and
+the test half is only transformed, so the holdout is subject to the same no-leakage rule
+as the cross-validated run. This is the plain "train it once, test it once" evaluation,
+and it produces one confusion matrix, one ROC curve and one set of metrics per model.
+
+**k-fold cross-validation.** 5-fold **Stratified** cross-validation, `shuffle=True`,
+`random_state=42`.
 
 * **Stratified** because the data are imbalanced (62.5% / 37.5%); stratification holds
   that ratio in every fold, keeping Specificity estimates stable. Each test fold
@@ -254,6 +264,41 @@ using Logistic Regression:
 
 On this dataset leakage produced **no measurable inflation** — see the Discussion for why
 this must not be read as evidence that leakage is harmless.
+
+### 2.5 Normal classification — a single train/test split
+
+The results above are cross-validated. This section reports the plain holdout evaluation
+described in §1.7: fit once on 320 patients, test once on the 80 the model has never seen
+(50 ckd / 30 notckd). Produced by `python src/ckd_pipeline.py --mode normal`; tables in
+`results/<experiment>/table_normal_classification.csv`, figures as
+`confusion_matrix_*_normal_*.png` and `roc_curve_*_normal_*.png`.
+
+**Table 6. Holdout performance, Experiment 1 (no outlier removal), n = 80.**
+
+| Model | Accuracy | Sensitivity | Specificity | Precision | F1 | AUC | TP | TN | FP | FN |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Logistic Regression | 0.9875 | 0.9800 | **1.0000** | **1.0000** | 0.9899 | **1.0000** | 49 | 30 | **0** | 1 |
+| Decision Tree | 0.9750 | 0.9800 | 0.9667 | 0.9800 | 0.9800 | 0.9733 | 49 | 29 | 1 | 1 |
+| **Random Forest** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | 50 | 30 | **0** | **0** |
+| SVM (RBF) | 0.9750 | 0.9600 | **1.0000** | **1.0000** | 0.9796 | **1.0000** | 48 | 30 | **0** | 2 |
+
+**Table 7. Holdout performance, Experiment 2 (IQR winsorisation), n = 80.**
+
+| Model | Accuracy | Sensitivity | Specificity | Precision | F1 | AUC | TP | TN | FP | FN |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Logistic Regression | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | 50 | 30 | 0 | 0 |
+| Decision Tree | 0.9875 | 0.9800 | **1.0000** | **1.0000** | 0.9899 | 0.9900 | 49 | 30 | 0 | 1 |
+| Random Forest | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | 50 | 30 | 0 | 0 |
+| SVM (RBF) | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | 50 | 30 | 0 | 0 |
+
+**Read these numbers with care.** An 80-patient test set cannot separate four models that
+all score above 0.97: **one misclassified patient is worth 0.0125 accuracy**, so the entire
+spread in Table 6 is two patients. Three of the four models score a perfect 1.0000 in
+Table 7, which says the 80-patient sample happened to contain no case any of them found
+difficult — not that outlier capping made them perfect. The cross-validated results in
+§2.1 and §2.3 rest on all 400 patients rather than 80 and are the numbers that should be
+quoted; the holdout is reported because it is the standard first evaluation and because it
+agrees with them.
 
 ---
 
